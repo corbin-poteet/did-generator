@@ -1,79 +1,161 @@
-import React, { useState, useEffect } from "react";
-import logo from "./react-logo.svg";
-import nodejsLogo from "./nodejs-logo.svg";
-import "./App.css";
+import maoi from './maoi.jpeg';
+import sound from './did.mp3';
+import './App.css';
+import React, { useState } from 'react';
+import useSound from 'use-sound';
+
+const KEY_JSON_PATH = "testData.json";
+
+
+
+// inputs: url, subject type, subject name
+// subject type: person, organization, etc
+// subject name: if person then first/last, if org then org name
+
+const didMethod = "did:web:"
+//DUE TO: replace with user input
+const didUrl = "srujn.github.io:did-root"
+const didController = didMethod + didUrl
+
+
+
+const vmCount = 1
+
+const vmTemplate = {
+  "id": didController, //add key identifier
+  "type": "JsonWebKey2020",
+  "controller": didController,
+  "publicKeyJwk": {
+    "kty": "EC",
+    "crv": "secp256k1",
+    "x": "replace-this",
+    "y": "replace-this"
+  }
+}
+
+const didTemplate = {
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    "https://w3id.org/security/suites/jws-2020/v1"
+  ],
+  "id": didController,
+  "verificationMethod": [
+
+  ],
+  "assertionMethod": [
+  ]
+}
+
+// const [users, setUsers] = useState([]);
+
+// useEffect(() => {
+//   fetch("/api/users")
+//     .then(res => res.json())
+//     .then(json => setUsers(json.users));
+//   // Specify how to clean up after this effect:
+//   return () => {};
+// }, []); // empty 2nd arg - only runs once
+
+function submit(url, isOrg, orgName, firstName, lastName) {
+  // print url, isOrg, orgName, firstName, lastName
+  console.log("URL: " + url + "\n" + "isOrg: "
+    + isOrg + "\n" + "orgName: " + orgName + "\n"
+    + "firstName: " + firstName + "\n" + "lastName: "
+    + lastName + "\n");
+  
+  fetch("/api/keypair")
+    .then(res => res.json())
+    .then(json => {
+      console.log(json.keypair);
+      const publicKey = json.keypair[0];
+      const privateKey = json.keypair[1];
+      console.log("publicKey: " + publicKey);
+      console.log("privateKey: " + privateKey);
+      // const vm = vmTemplate;
+      // vm.id = didController + "#" + publicKey;
+      // vm.controller = didController;
+      // vm.publicKeyJwk.x = publicKey;
+      // vm.publicKeyJwk.y = privateKey;
+      // const did = didTemplate;
+      // did.id = didController;
+      // did.verificationMethod.push(vm);
+      // did.assertionMethod.push(vm.id);
+      // console.log("vm: " + JSON.stringify(vm));
+      // console.log("did: " + JSON.stringify(did));
+      // fetch("/api/did", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify(did)
+      // })
+      //   .then(res => res.json())
+      //   .then(json => {
+      //     console.log(json);
+      //   });
+    });
+
+}
+
 
 function App() {
-  const [users, setUsers] = useState([]);
+  const [play] = useSound(sound);
 
-  useEffect(() => {
-    fetch("/api/users")
-      .then(res => res.json())
-      .then(json => setUsers(json.users));
-    // Specify how to clean up after this effect:
-    return () => {};
-  }, []); // empty 2nd arg - only runs once
+  const [url, setUrl] = useState("");
+
+  const [isOrg, setIsOrg] = useState(false);
+  const [orgName, setOrgName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
+  const setType = () => {
+    if (document.getElementById('type').value === 'organization') {
+      setIsOrg(true);
+    } else {
+      setIsOrg(false);
+    }
+  }
 
   return (
     <div className="App">
       <header className="App-header">
-        <h1>React Node Template</h1>
-        <p>
-          <a
-            className="App-link"
-            href="https://github.com/mattvukas/react-node-template"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            https://github.com/mattvukas/react-node-template
-          </a>
-        </p>
-        <div className="logo-box">
-          <img src={logo} className="App-logo" alt="logo" />
-          <img src={nodejsLogo} className="Node-logo" alt="nodejsLogo" />
-        </div>
-        <p>
-          Edit <code>client/src/App.js</code> and save to reload React app.
-        </p>
-        <p>
-          Edit <code>client/server/routes/api.js</code> and save to reload
-          Node.js app.
-        </p>
-        <br />
-        <p>
-          <code>GET /api/users</code>:{" "}
-          {users.length ? users.join(", ") : "loading..."}
-        </p>
-        <br />
-        <p>
-          Docs:{" "}
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          {" | "}
-          <a
-            className="App-link"
-            href="https://nodejs.org/en/docs/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Node.js
-          </a>
-          {" | "}
-          <a
-            className="App-link"
-            href="https://expressjs.com/en/4x/api.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Express.js
-          </a>
-        </p>
+        {<img src={maoi} onClick={play} className="App-logo" alt="logo" />}
+        <form style={{ textAlign: 'left', width: '50%', margin: 'auto' }}
+          onSubmit={e => {
+            e.preventDefault();
+            submit(url, isOrg, orgName, firstName, lastName);
+          }}>
+          <label>
+            URL:
+            <input type="text" value={url} onChange={e => setUrl(e.target.value)} />
+          </label>
+          <br />
+          <label>
+            Subject Type:
+            <select id='type' onChange={setType}>
+              <option value="person">Person</option>
+              <option value="organization">Organization</option>
+            </select>
+          </label>
+          <br />
+          {isOrg ?
+            <label>
+              Organization Name:
+              <input type="text" onChange={e => setOrgName(e.target.value)} />
+            </label> :
+            <label>
+              First Name:
+              <input id="firstName" type="text" onChange={e => setFirstName(e.target.value)} />
+              <br />
+              Last Name:
+              <input id="lastName" type="text" onChange={e => setLastName(e.target.value)} />
+            </label>
+          }
+          <br />
+          <input type="submit" value="Submit" />
+        </form>
+
+
       </header>
     </div>
   );
