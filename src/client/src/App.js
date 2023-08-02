@@ -56,57 +56,74 @@ const didTemplate = {
 //   return () => {};
 // }, []); // empty 2nd arg - only runs once
 
-function submit(url, isOrg, orgName, firstName, lastName) {
+async function submit(url, isOrg, orgName, firstName, lastName) {
   // print url, isOrg, orgName, firstName, lastName
   console.log("URL: " + url + "\n" + "isOrg: "
     + isOrg + "\n" + "orgName: " + orgName + "\n"
     + "firstName: " + firstName + "\n" + "lastName: "
     + lastName + "\n");
   
-  fetch("/api/keypair")
+  // generate keypair
+  const keypair = await getKeypair();
+  console.log(keypair);
+  const pubX = keypair[2];
+  const pubY = keypair[3];
+  console.log(pubX);
+  console.log(pubY);
+
+  // generate DID
+  const subjectType = isOrg ? "organization" : "person";
+  const subjectName = isOrg ? orgName : firstName + " " + lastName;
+  const did = await getDID(url, subjectType, subjectName, pubX, pubY);
+  console.log(JSON.stringify(did, null, 2));
+  
+  
+
+}
+
+async function getKeypair() {
+  return fetch("/api/keypair", {
+    headers : { 
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+     }
+  })
     .then(res => res.json())
     .then(json => {
-      console.log(json.keypair);
-      const publicKey = json.keypair[0];
-      const privateKey = json.keypair[1];
-      console.log("publicKey: " + publicKey);
-      console.log("privateKey: " + privateKey);
-      // const vm = vmTemplate;
-      // vm.id = didController + "#" + publicKey;
-      // vm.controller = didController;
-      // vm.publicKeyJwk.x = publicKey;
-      // vm.publicKeyJwk.y = privateKey;
-      // const did = didTemplate;
-      // did.id = didController;
-      // did.verificationMethod.push(vm);
-      // did.assertionMethod.push(vm.id);
-      // console.log("vm: " + JSON.stringify(vm));
-      // console.log("did: " + JSON.stringify(did));
-      // fetch("/api/did", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json"
-      //   },
-      //   body: JSON.stringify(did)
-      // })
-      //   .then(res => res.json())
-      //   .then(json => {
-      //     console.log(json);
-      //   });
+      return json.keypair;
     });
+}
 
+async function getDID(url, subjectType, subjectName, pubX, pubY) {
+  return fetch("/api/did", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      url: url,
+      subjectType: subjectType,
+      subjectName: subjectName,
+      pubX: pubX,
+      pubY: pubY
+    })
+  })
+    .then(res => res.json())
+    .then(json => {
+      return json.did;
+    });
 }
 
 
 function App() {
   const [play] = useSound(sound);
 
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState("joe.com");
 
   const [isOrg, setIsOrg] = useState(false);
   const [orgName, setOrgName] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState("joe");
+  const [lastName, setLastName] = useState("brandon");
 
   const setType = () => {
     if (document.getElementById('type').value === 'organization') {
@@ -145,10 +162,10 @@ function App() {
             </label> :
             <label>
               First Name:
-              <input id="firstName" type="text" onChange={e => setFirstName(e.target.value)} />
+              <input id="firstName" value={firstName} type="text" onChange={e => setFirstName(e.target.value)} />
               <br />
               Last Name:
-              <input id="lastName" type="text" onChange={e => setLastName(e.target.value)} />
+              <input id="lastName" value={lastName} type="text" onChange={e => setLastName(e.target.value)} />
             </label>
           }
           <br />
