@@ -16,3 +16,4 @@ This web application gives users the ability to input their information about th
 5. In a terminal, navigate to ```src/server``` and run ```npm install```
 6. Navigate back to the project root and run ```npm run dev``` which will run both the server and client 
 7. Navigate to localhost:3000 in your browser to view the application, if the previous command doesn't automatically do it
+8. The results will be displayed in the console of the browser after clicking "Submit"
