@@ -114,6 +114,15 @@ async function getDID(url, subjectType, subjectName, pubX, pubY) {
     });
 }
 
+async function resolveDID() {
+  return fetch('https://aus36.github.io/didweb-doc/did.json')
+  .then(response => response.json())
+  .then(data => {
+    console.log(JSON.stringify(data, null, 2)); // Prints the did doc to the console
+  })
+  .catch(error => console.error('An error occurred while resolving the did document:', error));
+}
+
 
 function App() {
   const [play] = useSound(sound);
@@ -172,7 +181,7 @@ function App() {
           <input type="submit" value="Submit" />
         </form>
         <br />
-        <button>Try to resolve did</button>
+        <button onClick={ () => resolveDID()}>Try to resolve did</button>
       </header>
     </div>
   );
