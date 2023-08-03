@@ -164,6 +164,7 @@ async function fetchHostedDID(url) {
   .then(response => response.json())
   .then(data => {
     console.log(JSON.stringify(data, null, 2)); // Prints the did doc to the console
+    return data;
   })
   .catch(error => console.error('An error occurred while fetching the did document from '+url+": ", error));
 }
@@ -174,18 +175,20 @@ async function fetchHostedVP(url) {
   .then(response => response.json())
   .then(data => {
     console.log(JSON.stringify(data, null, 2)); // Prints the vp to the console
+    return data;
   })
   .catch(error => console.error('An error occurred while fetching the vp from '+url+": ", error));
 }
 
 // 3. Validate the did document and vp pair
 async function validateDidVp(vpUrl, didUrl) {
-  let vp = fetchHostedVP(vpUrl);
-  let did = fetchHostedDID(didUrl);
-  console.log("Yep, you just did that");
-  console.log(vp[id]);
-
-  return true; //placeholder
+  let vp = await fetchHostedVP(vpUrl);
+  let did = await fetchHostedDID(didUrl);
+  
+  if(vp["verifiableCredentials"][0]["credentialSubject"]["id"] = did["id"]) {
+    return true
+  }
+  else return false
 }
 //========================================================
 
