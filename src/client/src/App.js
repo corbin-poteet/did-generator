@@ -66,10 +66,10 @@ async function submit(url, isOrg, orgName, firstName, lastName) {
   // generate keypair
   const keypair = await getKeypair();
   console.log(keypair);
+  const privateKey = keypair[1].priv;
   const pubX = keypair[2];
   const pubY = keypair[3];
-  console.log(pubX);
-  console.log(pubY);
+
 
   // generate DID
   const subjectType = isOrg ? "organization" : "person";
@@ -77,7 +77,13 @@ async function submit(url, isOrg, orgName, firstName, lastName) {
   const did = await getDID(url, subjectType, subjectName, pubX, pubY);
   console.log(JSON.stringify(did, null, 2));
   
-  
+  // generate VC
+  //const vc = await getVC(privateKey, did, "web_service_binding");
+  //console.log(JSON.stringify(vc, null, 2));
+
+  // generate VP
+  const vp = await getVP(privateKey, did);
+  console.log(JSON.stringify(vp, null, 2));
 
 }
 
@@ -114,6 +120,40 @@ async function getDID(url, subjectType, subjectName, pubX, pubY) {
     });
 }
 
+async function getVC(key, did, type) {
+  return fetch("/api/vc", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      key: key,
+      did: did,
+      type: type
+    })
+  })
+    .then(res => res.json())
+    .then(json => {
+      return json.vc;
+    });
+}
+
+async function getVP(key, did) {
+  return fetch("/api/vp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      key: key,
+      did: did
+    })
+  })
+    .then(res => res.json())
+    .then(json => {
+      return json.vp;
+    });
+}
 
 function App() {
   const [play] = useSound(sound);

@@ -8,8 +8,12 @@
   "dependencies": {
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
+    "did-jwt": "^6.11.0",
+    "did-jwt-vc": "^3.1.0",
+    "did-resolver": "^4.0.1",
     "elliptic": "^6.5.4",
     "express": "~4.16.1",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "web-did-resolver": "^2.0.21"
   }
 }
