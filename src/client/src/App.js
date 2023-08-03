@@ -171,8 +171,8 @@ function App() {
           <br />
           <input type="submit" value="Submit" />
         </form>
-
-
+        <br />
+        <button>Try to resolve did</button>
       </header>
     </div>
   );
