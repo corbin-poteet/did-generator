@@ -114,16 +114,40 @@ async function getDID(url, subjectType, subjectName, pubX, pubY) {
     });
 }
 
-async function resolveDID() {
-  return fetch('https://aus36.github.io/didweb-doc/did.json')
+
+// Functions for validating the did document and vp pair
+//========================================================
+// 1. Fetch the did document from a hosted location
+async function fetchHostedDID(url) {
+  return fetch(url)
   .then(response => response.json())
   .then(data => {
     console.log(JSON.stringify(data, null, 2)); // Prints the did doc to the console
   })
-  .catch(error => console.error('An error occurred while resolving the did document:', error));
+  .catch(error => console.error('An error occurred while fetching the did document from '+url+": ", error));
 }
 
+// 2. Fetch the vp from a hosted location
+async function fetchHostedVP(url) {
+  return fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    console.log(JSON.stringify(data, null, 2)); // Prints the vp to the console
+  })
+  .catch(error => console.error('An error occurred while fetching the vp from '+url+": ", error));
+}
 
+// 3. Validate the did document and vp pair
+function validateDidVp(vpUrl, didUrl) {
+  let vp = fetchHostedVP(vpUrl);
+  let did = fetchHostedDID(didUrl);
+  console.log("Yep, you just did that");
+  console.log(vp);
+}
+//========================================================
+
+
+// App component
 function App() {
   const [play] = useSound(sound);
 
@@ -133,6 +157,9 @@ function App() {
   const [orgName, setOrgName] = useState("");
   const [firstName, setFirstName] = useState("joe");
   const [lastName, setLastName] = useState("brandon");
+
+  const [vpUrl, setVpUrl] = useState("https://aus36.github.io/didweb-doc/vp.json"); // Url for hosted vp
+  const [didUrl, setDidUrl] = useState("https://aus36.github.io/didweb-doc/did.json"); // Url for hosted did document
 
   const setType = () => {
     if (document.getElementById('type').value === 'organization') {
@@ -181,7 +208,17 @@ function App() {
           <input type="submit" value="Submit" />
         </form>
         <br />
-        <button onClick={ () => resolveDID()}>Try to resolve did</button>
+        <form>
+          <label>
+            DID Document URL:
+            <input id="didDocUrl" value={didUrl} type="text" onChange={e => setDidUrl(e.target.value)} />
+            <br />
+            Verifiable Presentation URL:
+            <input id="vpUrl" value={vpUrl} type="text" onChange={e => setVpUrl(e.target.value)} />
+          </label>
+        </form>
+        <br />
+        <button onClick={ () => validateDidVp(vpUrl, didUrl)}>Validate did document and vp pair</button>
       </header>
     </div>
   );
