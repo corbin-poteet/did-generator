@@ -3,6 +3,7 @@ import sound from './did.mp3';
 import './App.css';
 import React, { useState } from 'react';
 import useSound from 'use-sound';
+import { id } from 'ethers/lib/utils';
 
 const KEY_JSON_PATH = "testData.json";
 
@@ -138,11 +139,13 @@ async function fetchHostedVP(url) {
 }
 
 // 3. Validate the did document and vp pair
-function validateDidVp(vpUrl, didUrl) {
+async function validateDidVp(vpUrl, didUrl) {
   let vp = fetchHostedVP(vpUrl);
   let did = fetchHostedDID(didUrl);
   console.log("Yep, you just did that");
-  console.log(vp);
+  console.log(vp[id]);
+
+  return true; //placeholder
 }
 //========================================================
 
@@ -160,6 +163,10 @@ function App() {
 
   const [vpUrl, setVpUrl] = useState("https://aus36.github.io/didweb-doc/vp.json"); // Url for hosted vp
   const [didUrl, setDidUrl] = useState("https://aus36.github.io/didweb-doc/did.json"); // Url for hosted did document
+
+  const [loaded, setLoaded] = useState(false); // flag for when the validate pair function has been called
+
+  const [validateSuccessful, setValidateSuccessful] = useState(false); // flag for the result when the validate pair function has been called
 
   const setType = () => {
     if (document.getElementById('type').value === 'organization') {
@@ -218,7 +225,11 @@ function App() {
           </label>
         </form>
         <br />
-        <button onClick={ () => validateDidVp(vpUrl, didUrl)}>Validate did document and vp pair</button>
+        <button onClick={ () => {setValidateSuccessful(validateDidVp(vpUrl, didUrl)); setLoaded(true);}}>Validate did document and vp pair</button>
+        <br />
+        {loaded
+        ? <p>Validation result: {validateSuccessful ? "Pair Sucessfully Validated" : "Invalid DID Doc/VP Pair"}</p> 
+        : <p>Nothing to validate yet</p>}
       </header>
     </div>
   );
