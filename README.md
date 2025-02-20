@@ -1,4 +1,4 @@
-# DID Generator Web Application
+# Decentralized Identity Document (DID) Generator Web Application
 
 ## Description
 This web application gives users the ability to input their information about themselves or the organization they represent, and the website will use this information to return a generated DID document back to them in compliant did:web specification. The application will also generate a basic sigchain verifiable presentation for the user, and allows verification between a hosted did document and verifiable presentation.
